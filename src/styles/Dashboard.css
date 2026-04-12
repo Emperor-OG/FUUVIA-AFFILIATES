@@ -296,6 +296,21 @@
   background: #f8fafc;
 }
 
+.affiliate-dashboard-page__field select {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  color: var(--text);
+  outline: none;
+}
+
+.affiliate-dashboard-page__field select:focus {
+  border-color: #8f68ff;
+  box-shadow: 0 0 0 4px rgba(143, 104, 255, 0.08);
+}
+
 @media (max-width: 900px) {
   .affiliate-dashboard-page__hero-card {
     flex-direction: column;
