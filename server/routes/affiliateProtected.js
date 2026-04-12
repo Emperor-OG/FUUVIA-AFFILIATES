@@ -94,6 +94,62 @@ router.get("/dashboard", requireAffiliate, async (req, res) => {
   }
 });
 
+router.get("/stores", requireAffiliate, async (req, res) => {
+  try {
+    const affiliateId = req.session.affiliate.id;
+    const search = String(req.query.search || "").trim();
+
+    const affiliateRes = await pool.query(
+      `
+      SELECT id, referral_code
+      FROM affiliates
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [affiliateId]
+    );
+
+    const affiliate = affiliateRes.rows[0];
+
+    if (!affiliate) {
+      return res.status(404).json({ error: "Affiliate not found" });
+    }
+
+    const params = [];
+    let whereSql = `
+      WHERE COALESCE(s.is_open, true) = true
+    `;
+
+    if (search) {
+      params.push(`%${search}%`);
+      whereSql += ` AND s.store_name ILIKE $${params.length}`;
+    }
+
+    const storesRes = await pool.query(
+      `
+      SELECT
+        s.id,
+        s.store_name,
+        s.city,
+        s.province
+      FROM stores s
+      ${whereSql}
+      ORDER BY s.store_name ASC
+      LIMIT 50
+      `,
+      params
+    );
+
+    return res.json({
+      referral_code: affiliate.referral_code || null,
+      stores: storesRes.rows,
+    });
+  } catch (err) {
+    console.error("Affiliate stores error:", err);
+    return res.status(500).json({ error: "Failed to load stores" });
+  }
+});
+
 router.put("/profile", requireAffiliate, async (req, res) => {
   try {
     const affiliateId = req.session.affiliate.id;
