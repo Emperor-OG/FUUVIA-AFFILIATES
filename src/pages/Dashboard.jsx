@@ -37,9 +37,16 @@ export default function Dashboard() {
   const [totals, setTotals] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMessage, setProfileMessage] = useState("");
   const [showBankingModal, setShowBankingModal] = useState(false);
+
+  const [showStoreLinksModal, setShowStoreLinksModal] = useState(false);
+  const [storeSearch, setStoreSearch] = useState("");
+  const [storeLinksLoading, setStoreLinksLoading] = useState(false);
+  const [storeLinksError, setStoreLinksError] = useState("");
+  const [stores, setStores] = useState([]);
 
   const [profileForm, setProfileForm] = useState({
     phone: "",
@@ -100,16 +107,16 @@ export default function Dashboard() {
     }));
   };
 
-  const handleCopyLink = async () => {
-    if (!referralLink) return;
+  const handleCopyText = async (text, successText = "Copied.") => {
+    if (!text) return;
 
     try {
-      await navigator.clipboard.writeText(referralLink);
-      setProfileMessage("Referral link copied.");
+      await navigator.clipboard.writeText(text);
+      setProfileMessage(successText);
       setTimeout(() => setProfileMessage(""), 2500);
     } catch (err) {
       console.error("Copy failed:", err);
-      setProfileMessage("Failed to copy referral link.");
+      setProfileMessage("Failed to copy.");
       setTimeout(() => setProfileMessage(""), 2500);
     }
   };
@@ -163,6 +170,54 @@ export default function Dashboard() {
     }
   };
 
+  const loadStoreLinks = async (searchValue = "") => {
+    try {
+      setStoreLinksLoading(true);
+      setStoreLinksError("");
+
+      const { data } = await axios.get(`${API_BASE}/api/affiliates/stores`, {
+        withCredentials: true,
+        params: { search: searchValue },
+      });
+
+      setStores(Array.isArray(data?.stores) ? data.stores : []);
+    } catch (err) {
+      console.error("Failed to load stores:", err);
+      setStoreLinksError(
+        err?.response?.data?.error || "Failed to load store links."
+      );
+    } finally {
+      setStoreLinksLoading(false);
+    }
+  };
+
+  const handleOpenStoreLinksModal = () => {
+    setShowStoreLinksModal(true);
+    setStoreSearch("");
+    setStores([]);
+    setStoreLinksError("");
+    loadStoreLinks("");
+  };
+
+  const handleCloseStoreLinksModal = () => {
+    if (storeLinksLoading) return;
+    setShowStoreLinksModal(false);
+    setStoreSearch("");
+    setStores([]);
+    setStoreLinksError("");
+  };
+
+  const handleStoreSearchSubmit = (e) => {
+    e.preventDefault();
+    loadStoreLinks(storeSearch);
+  };
+
+  const getStoreReferralLink = (storeId) => {
+    if (!affiliate?.referral_code || !storeId) return "";
+    const nextPath = `/store?id=${storeId}`;
+    return `${MAIN_SITE_URL}/REF/${affiliate.referral_code}?next=${encodeURIComponent(nextPath)}`;
+  };
+
   const handleLogout = async () => {
     try {
       await axios.post(
@@ -200,7 +255,7 @@ export default function Dashboard() {
                 Welcome, {affiliate.full_name}
               </h1>
               <p className="affiliate-dashboard-page__text">
-                Track your status, referral access, orders, earnings, and payout progress.
+                Track your status, referral access, orders, earnings, payout progress, and store-specific links.
               </p>
             </div>
 
@@ -223,7 +278,17 @@ export default function Dashboard() {
           </div>
 
           <div className="affiliate-dashboard-card">
-            <h3>Referral Access</h3>
+            <div className="affiliate-dashboard-page__card-top">
+              <h3>Referral Access</h3>
+              <button
+                type="button"
+                className="affiliate-dashboard-page__action-btn"
+                onClick={handleOpenStoreLinksModal}
+              >
+                Store Links
+              </button>
+            </div>
+
             <p><strong>Code:</strong> {affiliate.referral_code || "Not assigned yet"}</p>
 
             {referralLink ? (
@@ -243,7 +308,7 @@ export default function Dashboard() {
                   <button
                     type="button"
                     className="affiliate-dashboard-page__action-btn"
-                    onClick={handleCopyLink}
+                    onClick={() => handleCopyText(referralLink, "Referral link copied.")}
                   >
                     Copy Link
                   </button>
@@ -517,6 +582,109 @@ export default function Dashboard() {
                 ) : null}
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showStoreLinksModal && (
+        <div
+          className="affiliate-dashboard-page__modal-overlay"
+          onClick={handleCloseStoreLinksModal}
+        >
+          <div
+            className="affiliate-dashboard-page__modal affiliate-dashboard-page__modal--wide"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="affiliate-dashboard-page__modal-header">
+              <div>
+                <h3>Store Referral Links</h3>
+                <p>Search for a store and copy a direct referral link for that specific store.</p>
+              </div>
+
+              <button
+                type="button"
+                className="affiliate-dashboard-page__modal-close"
+                onClick={handleCloseStoreLinksModal}
+              >
+                ×
+              </button>
+            </div>
+
+            <form
+              className="affiliate-dashboard-page__store-search"
+              onSubmit={handleStoreSearchSubmit}
+            >
+              <input
+                type="text"
+                value={storeSearch}
+                onChange={(e) => setStoreSearch(e.target.value)}
+                placeholder="Search by store name"
+              />
+              <button
+                type="submit"
+                className="affiliate-dashboard-page__save-btn"
+                disabled={storeLinksLoading}
+              >
+                {storeLinksLoading ? "Searching..." : "Search"}
+              </button>
+            </form>
+
+            {storeLinksError ? (
+              <p className="affiliate-dashboard-page__profile-message">
+                {storeLinksError}
+              </p>
+            ) : null}
+
+            <div className="affiliate-dashboard-page__table-wrap">
+              <table className="affiliate-dashboard-page__table">
+                <thead>
+                  <tr>
+                    <th>Store ID</th>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Link</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {!storeLinksLoading && stores.length === 0 ? (
+                    <tr>
+                      <td colSpan="5">No stores found.</td>
+                    </tr>
+                  ) : (
+                    stores.map((store) => {
+                      const storeLink = getStoreReferralLink(store.id);
+
+                      return (
+                        <tr key={store.id}>
+                          <td>{store.id}</td>
+                          <td>{store.store_name}</td>
+                          <td>
+                            {[store.city, store.province].filter(Boolean).join(" • ") || "-"}
+                          </td>
+                          <td>
+                            <div className="affiliate-dashboard-page__store-link-cell">
+                              {storeLink}
+                            </div>
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className="affiliate-dashboard-page__action-btn"
+                              onClick={() =>
+                                handleCopyText(storeLink, "Store referral link copied.")
+                              }
+                            >
+                              Copy
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
