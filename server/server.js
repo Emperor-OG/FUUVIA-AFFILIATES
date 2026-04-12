@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
+const path = require("path");
 require("dotenv").config();
 
 const affiliatePublicRoutes = require("./routes/affiliatePublic");
@@ -39,6 +40,13 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/affiliates", affiliatePublicRoutes);
 app.use("/api/affiliates", affiliateAuthRoutes);
+
+const distPath = path.join(__dirname, "..", "dist");
+app.use(express.static(distPath));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
+});
 
 app.listen(PORT, () => {
   console.log(`✅ Affiliate server running on port ${PORT}`);
