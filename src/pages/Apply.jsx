@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "../styles/Apply.css";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_BASE = import.meta.env.DEV ? "http://localhost:8080" : "";
 
 export default function Apply() {
   const [form, setForm] = useState({
@@ -37,17 +37,21 @@ export default function Apply() {
     setSubmitting(true);
 
     try {
-      const { data } = await axios.post(`${API_BASE}/api/affiliates/apply`, {
-        full_name: form.fullName,
-        email: form.email,
-        phone: form.phone,
+      const payload = {
+        full_name: form.fullName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
         password: form.password,
         application_note: [
-          form.socialLink ? `Social Link: ${form.socialLink}` : "",
-          form.applicationNote || "",
+          form.socialLink ? `Social Link: ${form.socialLink.trim()}` : "",
+          form.applicationNote ? form.applicationNote.trim() : "",
         ]
           .filter(Boolean)
           .join("\n\n"),
+      };
+
+      const { data } = await axios.post(`${API_BASE}/api/affiliates/apply`, payload, {
+        withCredentials: true,
       });
 
       setSuccessMessage(
@@ -64,8 +68,16 @@ export default function Apply() {
         applicationNote: "",
       });
     } catch (err) {
+      console.error("Affiliate application failed:", {
+        status: err?.response?.status,
+        data: err?.response?.data,
+        message: err?.message,
+      });
+
       setErrorMessage(
-        err?.response?.data?.error || "Failed to submit application."
+        err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          "Failed to submit application."
       );
     } finally {
       setSubmitting(false);
