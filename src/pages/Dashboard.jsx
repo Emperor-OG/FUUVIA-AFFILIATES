@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMessage, setProfileMessage] = useState("");
+  const [showBankingModal, setShowBankingModal] = useState(false);
 
   const [profileForm, setProfileForm] = useState({
     phone: "",
@@ -78,6 +79,26 @@ export default function Dashboard() {
     }
   };
 
+  const handleOpenBankingModal = () => {
+    const a = affiliate || {};
+    setProfileForm({
+      phone: a.phone || "",
+      bank_name: a.bank_name || "",
+      account_holder: a.account_holder || "",
+      account_number: a.account_number || "",
+      account_type: a.account_type || "",
+      branch_code: a.branch_code || "",
+    });
+    setProfileMessage("");
+    setShowBankingModal(true);
+  };
+
+  const handleCloseBankingModal = () => {
+    if (savingProfile) return;
+    setShowBankingModal(false);
+    setProfileMessage("");
+  };
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     setSavingProfile(true);
@@ -92,6 +113,11 @@ export default function Dashboard() {
 
       setAffiliate(data.affiliate || null);
       setProfileMessage(data?.message || "Profile updated successfully.");
+
+      setTimeout(() => {
+        setShowBankingModal(false);
+        setProfileMessage("");
+      }, 900);
     } catch (err) {
       console.error("Failed to update profile:", err);
       setProfileMessage(
@@ -127,295 +153,330 @@ export default function Dashboard() {
   if (!affiliate) return null;
 
   return (
-    <main className="affiliate-dashboard-page">
-      <section className="affiliate-dashboard-page__hero">
-        <div className="affiliate-dashboard-page__hero-card">
-          <div>
-            <p className="affiliate-dashboard-page__eyebrow">
-              FUUVIA Affiliate Dashboard
-            </p>
-            <h1 className="affiliate-dashboard-page__title">
-              Welcome, {affiliate.full_name}
-            </h1>
-            <p className="affiliate-dashboard-page__text">
-              Track your status, referral access, orders, earnings, and payout progress.
-            </p>
-          </div>
-
-          <button
-            className="affiliate-dashboard-page__logout"
-            type="button"
-            onClick={handleLogout}
-          >
-            Sign Out
-          </button>
-        </div>
-      </section>
-
-      <section className="affiliate-dashboard-page__grid">
-        <div className="affiliate-dashboard-card">
-          <h3>Account Status</h3>
-          <p><strong>Status:</strong> {affiliate.status}</p>
-          <p><strong>Email:</strong> {affiliate.email}</p>
-          <p><strong>Phone:</strong> {affiliate.phone || "Not added"}</p>
-        </div>
-
-        <div className="affiliate-dashboard-card">
-          <h3>Referral Access</h3>
-          <p><strong>Code:</strong> {affiliate.referral_code || "Not assigned yet"}</p>
-
-          {referralLink ? (
-            <>
-              <div className="affiliate-dashboard-page__referral-box">
-                <a
-                  href={referralLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="affiliate-dashboard-page__referral-link"
-                >
-                  {referralLink}
-                </a>
-              </div>
-
-              <div className="affiliate-dashboard-page__referral-actions">
-                <button
-                  type="button"
-                  className="affiliate-dashboard-page__action-btn"
-                  onClick={handleCopyLink}
-                >
-                  Copy Link
-                </button>
-              </div>
-            </>
-          ) : (
-            <p className="affiliate-dashboard-card__muted">
-              Your referral link will appear after approval.
-            </p>
-          )}
-        </div>
-
-        <div className="affiliate-dashboard-card">
-          <h3>Banking Snapshot</h3>
-          <p><strong>Bank:</strong> {affiliate.bank_name || "Not added"}</p>
-          <p><strong>Account Holder:</strong> {affiliate.account_holder || "Not added"}</p>
-          <p><strong>Account Type:</strong> {affiliate.account_type || "Not added"}</p>
-        </div>
-      </section>
-
-      <section className="affiliate-dashboard-page__stats">
-        <div className="affiliate-dashboard-card">
-          <h3>Tracked</h3>
-          <p className="affiliate-dashboard-page__stat">
-            R{Number(totals?.tracked_total || 0).toFixed(2)}
-          </p>
-        </div>
-
-        <div className="affiliate-dashboard-card">
-          <h3>Completed</h3>
-          <p className="affiliate-dashboard-page__stat">
-            R{Number(totals?.completed_total || 0).toFixed(2)}
-          </p>
-        </div>
-
-        <div className="affiliate-dashboard-card">
-          <h3>Ready for Payout</h3>
-          <p className="affiliate-dashboard-page__stat">
-            R{Number(totals?.ready_total || 0).toFixed(2)}
-          </p>
-        </div>
-
-        <div className="affiliate-dashboard-card">
-          <h3>Paid</h3>
-          <p className="affiliate-dashboard-page__stat">
-            R{Number(totals?.paid_total || 0).toFixed(2)}
-          </p>
-        </div>
-      </section>
-
-      <section className="affiliate-dashboard-page__status-panel">
-        {affiliate.status === "pending" && (
-          <div className="affiliate-dashboard-card">
-            <h3>Application Under Review</h3>
-            <p>Your application is currently being reviewed.</p>
-          </div>
-        )}
-
-        {affiliate.status === "active" && (
-          <div className="affiliate-dashboard-card">
-            <h3>Approved</h3>
-            <p>Your affiliate account is active and ready to earn.</p>
-          </div>
-        )}
-
-        {affiliate.status === "rejected" && (
-          <div className="affiliate-dashboard-card">
-            <h3>Application Not Approved</h3>
-            <p>Your application was not approved at this time.</p>
-          </div>
-        )}
-
-        {affiliate.status === "suspended" && (
-          <div className="affiliate-dashboard-card">
-            <h3>Account Suspended</h3>
-            <p>Your affiliate account is currently suspended.</p>
-          </div>
-        )}
-      </section>
-
-      <section className="affiliate-dashboard-page__profile-section">
-        <div className="affiliate-dashboard-card">
-          <h3>Update Account Details</h3>
-
-          <form
-            className="affiliate-dashboard-page__profile-form"
-            onSubmit={handleSaveProfile}
-          >
-            <div className="affiliate-dashboard-page__form-grid">
-              <div className="affiliate-dashboard-page__field">
-                <label htmlFor="phone">Phone Number</label>
-                <input
-                  id="phone"
-                  type="text"
-                  value={profileForm.phone}
-                  onChange={(e) => updateProfileField("phone", e.target.value)}
-                  placeholder="Enter your phone number"
-                />
-              </div>
-
-              <div className="affiliate-dashboard-page__field">
-                <label htmlFor="bank_name">Bank Name</label>
-                <input
-                  id="bank_name"
-                  type="text"
-                  value={profileForm.bank_name}
-                  onChange={(e) => updateProfileField("bank_name", e.target.value)}
-                  placeholder="Enter your bank name"
-                />
-              </div>
-
-              <div className="affiliate-dashboard-page__field">
-                <label htmlFor="account_holder">Account Holder</label>
-                <input
-                  id="account_holder"
-                  type="text"
-                  value={profileForm.account_holder}
-                  onChange={(e) =>
-                    updateProfileField("account_holder", e.target.value)
-                  }
-                  placeholder="Enter account holder name"
-                />
-              </div>
-
-              <div className="affiliate-dashboard-page__field">
-                <label htmlFor="account_number">Account Number</label>
-                <input
-                  id="account_number"
-                  type="text"
-                  value={profileForm.account_number}
-                  onChange={(e) =>
-                    updateProfileField("account_number", e.target.value)
-                  }
-                  placeholder="Enter account number"
-                />
-              </div>
-
-              <div className="affiliate-dashboard-page__field">
-                <label htmlFor="account_type">Account Type</label>
-                <input
-                  id="account_type"
-                  type="text"
-                  value={profileForm.account_type}
-                  onChange={(e) =>
-                    updateProfileField("account_type", e.target.value)
-                  }
-                  placeholder="Savings / Cheque / Current"
-                />
-              </div>
-
-              <div className="affiliate-dashboard-page__field">
-                <label htmlFor="branch_code">Branch Code</label>
-                <input
-                  id="branch_code"
-                  type="text"
-                  value={profileForm.branch_code}
-                  onChange={(e) =>
-                    updateProfileField("branch_code", e.target.value)
-                  }
-                  placeholder="Enter branch code"
-                />
-              </div>
+    <>
+      <main className="affiliate-dashboard-page">
+        <section className="affiliate-dashboard-page__hero">
+          <div className="affiliate-dashboard-page__hero-card">
+            <div>
+              <p className="affiliate-dashboard-page__eyebrow">
+                FUUVIA Affiliate Dashboard
+              </p>
+              <h1 className="affiliate-dashboard-page__title">
+                Welcome, {affiliate.full_name}
+              </h1>
+              <p className="affiliate-dashboard-page__text">
+                Track your status, referral access, orders, earnings, and payout progress.
+              </p>
             </div>
 
-            <div className="affiliate-dashboard-page__profile-actions">
+            <button
+              className="affiliate-dashboard-page__logout"
+              type="button"
+              onClick={handleLogout}
+            >
+              Sign Out
+            </button>
+          </div>
+        </section>
+
+        <section className="affiliate-dashboard-page__grid">
+          <div className="affiliate-dashboard-card">
+            <h3>Account Status</h3>
+            <p><strong>Status:</strong> {affiliate.status}</p>
+            <p><strong>Email:</strong> {affiliate.email}</p>
+            <p><strong>Phone:</strong> {affiliate.phone || "Not added"}</p>
+          </div>
+
+          <div className="affiliate-dashboard-card">
+            <h3>Referral Access</h3>
+            <p><strong>Code:</strong> {affiliate.referral_code || "Not assigned yet"}</p>
+
+            {referralLink ? (
+              <>
+                <div className="affiliate-dashboard-page__referral-box">
+                  <a
+                    href={referralLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="affiliate-dashboard-page__referral-link"
+                  >
+                    {referralLink}
+                  </a>
+                </div>
+
+                <div className="affiliate-dashboard-page__referral-actions">
+                  <button
+                    type="button"
+                    className="affiliate-dashboard-page__action-btn"
+                    onClick={handleCopyLink}
+                  >
+                    Copy Link
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className="affiliate-dashboard-card__muted">
+                Your referral link will appear after approval.
+              </p>
+            )}
+          </div>
+
+          <div className="affiliate-dashboard-card">
+            <div className="affiliate-dashboard-page__card-top">
+              <h3>Banking Snapshot</h3>
               <button
-                type="submit"
-                className="affiliate-dashboard-page__save-btn"
-                disabled={savingProfile}
+                type="button"
+                className="affiliate-dashboard-page__action-btn"
+                onClick={handleOpenBankingModal}
               >
-                {savingProfile ? "Saving..." : "Save Details"}
+                Change
               </button>
-
-              {profileMessage ? (
-                <p className="affiliate-dashboard-page__profile-message">
-                  {profileMessage}
-                </p>
-              ) : null}
             </div>
-          </form>
-        </div>
-      </section>
 
-      <section className="affiliate-dashboard-page__orders">
-        <div className="affiliate-dashboard-card">
-          <h3>Recent Orders</h3>
+            <p><strong>Bank:</strong> {affiliate.bank_name || "Not added"}</p>
+            <p><strong>Account Holder:</strong> {affiliate.account_holder || "Not added"}</p>
+            <p><strong>Account Number:</strong> {affiliate.account_number || "Not added"}</p>
+            <p><strong>Account Type:</strong> {affiliate.account_type || "Not added"}</p>
+            <p><strong>Branch Code:</strong> {affiliate.branch_code || "Not added"}</p>
+          </div>
+        </section>
 
-          {orders.length === 0 ? (
-            <p className="affiliate-dashboard-card__muted">
-              No referred orders yet.
+        <section className="affiliate-dashboard-page__stats">
+          <div className="affiliate-dashboard-card">
+            <h3>Tracked</h3>
+            <p className="affiliate-dashboard-page__stat">
+              R{Number(totals?.tracked_total || 0).toFixed(2)}
             </p>
-          ) : (
-            <div className="affiliate-dashboard-page__table-wrap">
-              <table className="affiliate-dashboard-page__table">
-                <thead>
-                  <tr>
-                    <th>Order</th>
-                    <th>Customer</th>
-                    <th>Items</th>
-                    <th>Order Total</th>
-                    <th>Earning</th>
-                    <th>Order Status</th>
-                    <th>Earning Status</th>
-                    <th>Payout Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => (
-                    <tr key={order.order_id}>
-                      <td>{order.order_reference || `#${order.order_id}`}</td>
-                      <td>
-                        <div>{order.customer_name || "-"}</div>
-                        <div className="affiliate-dashboard-page__subtext">
-                          {order.customer_email || order.customer_phone || ""}
-                        </div>
-                      </td>
-                      <td>{order.item_count}</td>
-                      <td>R{Number(order.order_total || 0).toFixed(2)}</td>
-                      <td>R{Number(order.earning_amount || 0).toFixed(2)}</td>
-                      <td>{order.order_status}</td>
-                      <td>{order.earning_status}</td>
-                      <td>
-                        {order.eligible_for_payout_at
-                          ? new Date(order.eligible_for_payout_at).toLocaleDateString()
-                          : "-"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          </div>
+
+          <div className="affiliate-dashboard-card">
+            <h3>Completed</h3>
+            <p className="affiliate-dashboard-page__stat">
+              R{Number(totals?.completed_total || 0).toFixed(2)}
+            </p>
+          </div>
+
+          <div className="affiliate-dashboard-card">
+            <h3>Ready for Payout</h3>
+            <p className="affiliate-dashboard-page__stat">
+              R{Number(totals?.ready_total || 0).toFixed(2)}
+            </p>
+          </div>
+
+          <div className="affiliate-dashboard-card">
+            <h3>Paid</h3>
+            <p className="affiliate-dashboard-page__stat">
+              R{Number(totals?.paid_total || 0).toFixed(2)}
+            </p>
+          </div>
+        </section>
+
+        <section className="affiliate-dashboard-page__status-panel">
+          {affiliate.status === "pending" && (
+            <div className="affiliate-dashboard-card">
+              <h3>Application Under Review</h3>
+              <p>Your application is currently being reviewed.</p>
             </div>
           )}
+
+          {affiliate.status === "active" && (
+            <div className="affiliate-dashboard-card">
+              <h3>Approved</h3>
+              <p>Your affiliate account is active and ready to earn.</p>
+            </div>
+          )}
+
+          {affiliate.status === "rejected" && (
+            <div className="affiliate-dashboard-card">
+              <h3>Application Not Approved</h3>
+              <p>Your application was not approved at this time.</p>
+            </div>
+          )}
+
+          {affiliate.status === "suspended" && (
+            <div className="affiliate-dashboard-card">
+              <h3>Account Suspended</h3>
+              <p>Your affiliate account is currently suspended.</p>
+            </div>
+          )}
+        </section>
+
+        <section className="affiliate-dashboard-page__orders">
+          <div className="affiliate-dashboard-card">
+            <h3>Recent Orders</h3>
+
+            {orders.length === 0 ? (
+              <p className="affiliate-dashboard-card__muted">
+                No referred orders yet.
+              </p>
+            ) : (
+              <div className="affiliate-dashboard-page__table-wrap">
+                <table className="affiliate-dashboard-page__table">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th>Items</th>
+                      <th>Order Total</th>
+                      <th>Earning</th>
+                      <th>Order Status</th>
+                      <th>Earning Status</th>
+                      <th>Payout Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((order) => (
+                      <tr key={order.order_id}>
+                        <td>{order.order_reference || `#${order.order_id}`}</td>
+                        <td>
+                          <div>{order.customer_name || "-"}</div>
+                          <div className="affiliate-dashboard-page__subtext">
+                            {order.customer_email || order.customer_phone || ""}
+                          </div>
+                        </td>
+                        <td>{order.item_count}</td>
+                        <td>R{Number(order.order_total || 0).toFixed(2)}</td>
+                        <td>R{Number(order.earning_amount || 0).toFixed(2)}</td>
+                        <td>{order.order_status}</td>
+                        <td>{order.earning_status}</td>
+                        <td>
+                          {order.eligible_for_payout_at
+                            ? new Date(order.eligible_for_payout_at).toLocaleDateString()
+                            : "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+
+      {showBankingModal && (
+        <div
+          className="affiliate-dashboard-page__modal-overlay"
+          onClick={handleCloseBankingModal}
+        >
+          <div
+            className="affiliate-dashboard-page__modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="affiliate-dashboard-page__modal-header">
+              <div>
+                <h3>Update Account Details</h3>
+                <p>Edit your payout and contact details below.</p>
+              </div>
+
+              <button
+                type="button"
+                className="affiliate-dashboard-page__modal-close"
+                onClick={handleCloseBankingModal}
+              >
+                ×
+              </button>
+            </div>
+
+            <form
+              className="affiliate-dashboard-page__profile-form"
+              onSubmit={handleSaveProfile}
+            >
+              <div className="affiliate-dashboard-page__form-grid">
+                <div className="affiliate-dashboard-page__field">
+                  <label htmlFor="phone">Phone Number</label>
+                  <input
+                    id="phone"
+                    type="text"
+                    value={profileForm.phone}
+                    onChange={(e) => updateProfileField("phone", e.target.value)}
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+
+                <div className="affiliate-dashboard-page__field">
+                  <label htmlFor="bank_name">Bank Name</label>
+                  <input
+                    id="bank_name"
+                    type="text"
+                    value={profileForm.bank_name}
+                    onChange={(e) => updateProfileField("bank_name", e.target.value)}
+                    placeholder="Enter your bank name"
+                  />
+                </div>
+
+                <div className="affiliate-dashboard-page__field">
+                  <label htmlFor="account_holder">Account Holder</label>
+                  <input
+                    id="account_holder"
+                    type="text"
+                    value={profileForm.account_holder}
+                    onChange={(e) =>
+                      updateProfileField("account_holder", e.target.value)
+                    }
+                    placeholder="Enter account holder name"
+                  />
+                </div>
+
+                <div className="affiliate-dashboard-page__field">
+                  <label htmlFor="account_number">Account Number</label>
+                  <input
+                    id="account_number"
+                    type="text"
+                    value={profileForm.account_number}
+                    onChange={(e) =>
+                      updateProfileField("account_number", e.target.value)
+                    }
+                    placeholder="Enter account number"
+                  />
+                </div>
+
+                <div className="affiliate-dashboard-page__field">
+                  <label htmlFor="account_type">Account Type</label>
+                  <input
+                    id="account_type"
+                    type="text"
+                    value={profileForm.account_type}
+                    onChange={(e) =>
+                      updateProfileField("account_type", e.target.value)
+                    }
+                    placeholder="Savings / Cheque / Current"
+                  />
+                </div>
+
+                <div className="affiliate-dashboard-page__field">
+                  <label htmlFor="branch_code">Branch Code</label>
+                  <input
+                    id="branch_code"
+                    type="text"
+                    value={profileForm.branch_code}
+                    onChange={(e) =>
+                      updateProfileField("branch_code", e.target.value)
+                    }
+                    placeholder="Enter branch code"
+                  />
+                </div>
+              </div>
+
+              <div className="affiliate-dashboard-page__profile-actions">
+                <button
+                  type="submit"
+                  className="affiliate-dashboard-page__save-btn"
+                  disabled={savingProfile}
+                >
+                  {savingProfile ? "Saving..." : "Save Details"}
+                </button>
+
+                {profileMessage ? (
+                  <p className="affiliate-dashboard-page__profile-message">
+                    {profileMessage}
+                  </p>
+                ) : null}
+              </div>
+            </form>
+          </div>
         </div>
-      </section>
-    </main>
+      )}
+    </>
   );
 }
