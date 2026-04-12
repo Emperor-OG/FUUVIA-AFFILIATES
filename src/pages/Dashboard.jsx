@@ -57,7 +57,7 @@ export default function Dashboard() {
 
   const referralLink = useMemo(() => {
     if (!affiliate?.referral_code) return null;
-    return `${MAIN_SITE_URL}/a/${affiliate.referral_code}`;
+    return `${MAIN_SITE_URL}/REF/${affiliate.referral_code}`;
   }, [affiliate]);
 
   const updateProfileField = (key, value) => {
