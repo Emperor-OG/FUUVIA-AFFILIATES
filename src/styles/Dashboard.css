@@ -39,7 +39,8 @@
   line-height: 1.7;
 }
 
-.affiliate-dashboard-page__logout {
+.affiliate-dashboard-page__logout,
+.affiliate-dashboard-page__action-btn {
   border: 1px solid var(--border);
   background: white;
   color: var(--text);
@@ -65,6 +66,7 @@
 }
 
 .affiliate-dashboard-page__status-panel,
+.affiliate-dashboard-page__profile-section,
 .affiliate-dashboard-page__orders {
   margin-top: 1rem;
 }
@@ -99,12 +101,94 @@
 }
 
 .affiliate-dashboard-page__referral-box {
-  margin-top: 0.5rem;
+  margin-top: 0.6rem;
   padding: 1rem;
   border-radius: 16px;
   background: #f8faff;
   border: 1px dashed var(--border);
   word-break: break-word;
+}
+
+.affiliate-dashboard-page__referral-link {
+  color: #487bff;
+  font-weight: 700;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.affiliate-dashboard-page__referral-link:hover {
+  text-decoration: underline;
+}
+
+.affiliate-dashboard-page__referral-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.affiliate-dashboard-page__profile-form {
+  margin-top: 0.5rem;
+}
+
+.affiliate-dashboard-page__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.affiliate-dashboard-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.affiliate-dashboard-page__field label {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.affiliate-dashboard-page__field input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  color: var(--text);
+  outline: none;
+}
+
+.affiliate-dashboard-page__field input:focus {
+  border-color: #8f68ff;
+  box-shadow: 0 0 0 4px rgba(143, 104, 255, 0.08);
+}
+
+.affiliate-dashboard-page__profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.affiliate-dashboard-page__save-btn {
+  border: none;
+  border-radius: 16px;
+  padding: 0.95rem 1.2rem;
+  font-weight: 800;
+  color: white;
+  background: var(--fuuvia-gradient);
+  cursor: pointer;
+}
+
+.affiliate-dashboard-page__save-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.affiliate-dashboard-page__profile-message {
+  margin: 0;
+  color: #475569;
+  font-weight: 600;
 }
 
 .affiliate-dashboard-page__table-wrap {
@@ -143,7 +227,8 @@
   }
 
   .affiliate-dashboard-page__grid,
-  .affiliate-dashboard-page__stats {
+  .affiliate-dashboard-page__stats,
+  .affiliate-dashboard-page__form-grid {
     grid-template-columns: 1fr;
   }
 
