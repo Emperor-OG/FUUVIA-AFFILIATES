@@ -94,4 +94,65 @@ router.get("/dashboard", requireAffiliate, async (req, res) => {
   }
 });
 
+router.put("/profile", requireAffiliate, async (req, res) => {
+  try {
+    const affiliateId = req.session.affiliate.id;
+
+    const {
+      phone,
+      bank_name,
+      account_holder,
+      account_number,
+      account_type,
+      branch_code,
+    } = req.body;
+
+    const result = await pool.query(
+      `
+      UPDATE affiliates
+      SET
+        phone = $2,
+        bank_name = $3,
+        account_holder = $4,
+        account_number = $5,
+        account_type = $6,
+        branch_code = $7,
+        updated_at = NOW()
+      WHERE id = $1
+      RETURNING
+        id,
+        full_name,
+        email,
+        phone,
+        status,
+        referral_code,
+        bank_name,
+        account_holder,
+        account_number,
+        account_type,
+        branch_code,
+        created_at,
+        verified_at
+      `,
+      [
+        affiliateId,
+        phone?.trim() || null,
+        bank_name?.trim() || null,
+        account_holder?.trim() || null,
+        account_number?.trim() || null,
+        account_type?.trim() || null,
+        branch_code?.trim() || null,
+      ]
+    );
+
+    return res.json({
+      message: "Profile updated successfully",
+      affiliate: result.rows[0],
+    });
+  } catch (err) {
+    console.error("Affiliate profile update error:", err);
+    return res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
 module.exports = router;
