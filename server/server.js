@@ -6,6 +6,7 @@ require("dotenv").config();
 
 const affiliatePublicRoutes = require("./routes/affiliatePublic");
 const affiliateAuthRoutes = require("./routes/affiliateAuth");
+const affiliateAdminRoutes = require("./routes/affiliateAdmin");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -40,6 +41,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/affiliates", affiliatePublicRoutes);
 app.use("/api/affiliates", affiliateAuthRoutes);
+app.use("/api/affiliates/admin", affiliateAdminRoutes);
 
 const distPath = path.join(__dirname, "..", "dist");
 app.use(express.static(distPath));
