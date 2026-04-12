@@ -6,6 +6,31 @@ import "../styles/Dashboard.css";
 const API_BASE = import.meta.env.DEV ? "http://localhost:8080" : "";
 const MAIN_SITE_URL = "https://www.fuuvia.com";
 
+const SOUTH_AFRICAN_BANKS = [
+  { label: "Absa", value: "Absa", branch_code: "632005" },
+  { label: "African Bank", value: "African Bank", branch_code: "430000" },
+  { label: "Bidvest Bank", value: "Bidvest Bank", branch_code: "462005" },
+  { label: "Capitec Bank", value: "Capitec Bank", branch_code: "470010" },
+  { label: "Discovery Bank", value: "Discovery Bank", branch_code: "679000" },
+  { label: "FNB", value: "FNB", branch_code: "250655" },
+  { label: "Investec", value: "Investec", branch_code: "580105" },
+  { label: "Nedbank", value: "Nedbank", branch_code: "198765" },
+  { label: "Old Mutual", value: "Old Mutual", branch_code: "462005" },
+  { label: "RMB", value: "RMB", branch_code: "261251" },
+  { label: "RMB Private Bank", value: "RMB Private Bank", branch_code: "222026" },
+  { label: "Sasfin Bank", value: "Sasfin Bank", branch_code: "683000" },
+  { label: "Standard Bank", value: "Standard Bank", branch_code: "051001" },
+  { label: "TymeBank", value: "TymeBank", branch_code: "678910" },
+];
+
+const ACCOUNT_TYPES = [
+  { label: "Savings", value: "Savings" },
+  { label: "Cheque", value: "Cheque" },
+  { label: "Current", value: "Current" },
+  { label: "Business", value: "Business" },
+  { label: "Transmission", value: "Transmission" },
+];
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const [affiliate, setAffiliate] = useState(null);
@@ -63,6 +88,16 @@ export default function Dashboard() {
 
   const updateProfileField = (key, value) => {
     setProfileForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleBankChange = (value) => {
+    const selectedBank = SOUTH_AFRICAN_BANKS.find((bank) => bank.value === value);
+
+    setProfileForm((prev) => ({
+      ...prev,
+      bank_name: value,
+      branch_code: selectedBank?.branch_code || "",
+    }));
   };
 
   const handleCopyLink = async () => {
@@ -396,13 +431,18 @@ export default function Dashboard() {
 
                 <div className="affiliate-dashboard-page__field">
                   <label htmlFor="bank_name">Bank Name</label>
-                  <input
+                  <select
                     id="bank_name"
-                    type="text"
                     value={profileForm.bank_name}
-                    onChange={(e) => updateProfileField("bank_name", e.target.value)}
-                    placeholder="Enter your bank name"
-                  />
+                    onChange={(e) => handleBankChange(e.target.value)}
+                  >
+                    <option value="">Select a bank</option>
+                    {SOUTH_AFRICAN_BANKS.map((bank) => (
+                      <option key={bank.value} value={bank.value}>
+                        {bank.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="affiliate-dashboard-page__field">
@@ -433,15 +473,20 @@ export default function Dashboard() {
 
                 <div className="affiliate-dashboard-page__field">
                   <label htmlFor="account_type">Account Type</label>
-                  <input
+                  <select
                     id="account_type"
-                    type="text"
                     value={profileForm.account_type}
                     onChange={(e) =>
                       updateProfileField("account_type", e.target.value)
                     }
-                    placeholder="Savings / Cheque / Current"
-                  />
+                  >
+                    <option value="">Select account type</option>
+                    {ACCOUNT_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="affiliate-dashboard-page__field">
@@ -450,10 +495,8 @@ export default function Dashboard() {
                     id="branch_code"
                     type="text"
                     value={profileForm.branch_code}
-                    onChange={(e) =>
-                      updateProfileField("branch_code", e.target.value)
-                    }
-                    placeholder="Enter branch code"
+                    readOnly
+                    placeholder="Auto-filled from bank selection"
                   />
                 </div>
               </div>
