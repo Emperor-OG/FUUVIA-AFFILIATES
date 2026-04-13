@@ -62,7 +62,21 @@ router.get("/dashboard", requireAffiliate, async (req, res) => {
 
     const ordersRes = await pool.query(
       `
-      SELECT *
+      SELECT
+        order_id,
+        order_reference,
+        customer_name,
+        customer_email,
+        customer_phone,
+        item_count,
+        order_total,
+        earning_amount,
+        order_status,
+        earning_status,
+        completed_at,
+        eligible_for_payout_at,
+        paid_at,
+        created_at
       FROM affiliate_earnings
       WHERE affiliate_id = $1
       ORDER BY created_at DESC
@@ -83,14 +97,14 @@ router.get("/dashboard", requireAffiliate, async (req, res) => {
 });
 
 /* =========================
-   STORE SEARCH (FIXED)
+   STORES (NO FILTERING)
 ========================= */
 router.get("/stores", requireAffiliate, async (req, res) => {
   try {
     const search = String(req.query.search || "").trim();
 
     const params = [];
-    let whereSql = `WHERE 1=1`; // 🔥 no more is_open filter
+    let whereSql = `WHERE 1=1`; // ✅ NO FILTER
 
     if (search) {
       params.push(`%${search}%`);
@@ -104,7 +118,7 @@ router.get("/stores", requireAffiliate, async (req, res) => {
         s.store_name,
         s.city,
         s.province,
-        COALESCE(s.is_open, true) AS is_open
+        s.is_open
       FROM stores s
       ${whereSql}
       ORDER BY s.store_name ASC
