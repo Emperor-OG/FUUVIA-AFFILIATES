@@ -654,19 +654,28 @@ export default function Dashboard() {
                   ) : (
                     stores.map((store) => {
                       const storeLink = getStoreReferralLink(store.id);
-
+                    
                       return (
                         <tr key={store.id}>
                           <td>{store.id}</td>
-                          <td>{store.store_name}</td>
+                    
+                          <td>
+                            {store.store_name}
+                            <div className="affiliate-dashboard-page__subtext">
+                              {store.is_open ? "Open" : "Closed"}
+                            </div>
+                          </td>
+                    
                           <td>
                             {[store.city, store.province].filter(Boolean).join(" • ") || "-"}
                           </td>
+                    
                           <td>
                             <div className="affiliate-dashboard-page__store-link-cell">
                               {storeLink}
                             </div>
                           </td>
+                    
                           <td>
                             <button
                               type="button"
@@ -680,7 +689,7 @@ export default function Dashboard() {
                           </td>
                         </tr>
                       );
-                    })
+                    });
                   )}
                 </tbody>
               </table>
