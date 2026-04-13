@@ -134,7 +134,7 @@ router.get("/stores", requireAffiliate, async (req, res) => {
         s.is_open
       FROM stores s
       ${whereSql}
-      ORDER BY s.store_name ASC
+      ORDER BY s.id ASC
       LIMIT 50
       `,
       params
