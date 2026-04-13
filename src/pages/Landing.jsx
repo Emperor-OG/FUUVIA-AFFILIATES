@@ -14,9 +14,10 @@ export default function Landing() {
 
           <p className="affiliate-landing__text">
             Join the FUUVIA Affiliate Programme and earn a fixed R20 commission
-            on every item purchased through your affiliate link. There is no
-            minimum payout threshold, so you can get paid from your earnings
-            without needing to hit a target first.
+            on every item purchased through your affiliate link. Payouts are
+            processed 7 days after order completion, and you can still earn if a
+            customer returns within 30 days — as long as they do not click another
+            affiliate link in between.
           </p>
 
           <div className="affiliate-landing__highlights">
@@ -26,13 +27,13 @@ export default function Landing() {
             </div>
 
             <div className="affiliate-landing__highlight">
-              <span className="affiliate-landing__highlight-label">Payout threshold</span>
-              <strong>No minimum</strong>
+              <span className="affiliate-landing__highlight-label">Payout</span>
+              <strong>7 days after completion</strong>
             </div>
 
             <div className="affiliate-landing__highlight">
-              <span className="affiliate-landing__highlight-label">Getting started</span>
-              <strong>Apply online</strong>
+              <span className="affiliate-landing__highlight-label">Tracking</span>
+              <strong>30-day referral window</strong>
             </div>
           </div>
 
@@ -56,6 +57,24 @@ export default function Landing() {
               Every qualifying item sold through your affiliate link earns you
               a fixed R20 commission. The more items your audience buys, the
               more you earn.
+            </p>
+          </article>
+
+          <article className="affiliate-landing__card">
+            <h3>7-Day Payout Cycle</h3>
+            <p>
+              Earnings become eligible for payout 7 days after an order is
+              completed. This allows time for order confirmation and reduces
+              cancellations or disputes.
+            </p>
+          </article>
+
+          <article className="affiliate-landing__card">
+            <h3>30-Day Referral Window</h3>
+            <p>
+              When someone clicks your affiliate link, a 30-day tracking cookie
+              is set. If they purchase within that period, you earn — unless they
+              click another affiliate link, which will replace yours.
             </p>
           </article>
 
