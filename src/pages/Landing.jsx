@@ -9,14 +9,32 @@ export default function Landing() {
           <p className="affiliate-landing__eyebrow">FUUVIA Affiliate Programme</p>
 
           <h1 className="affiliate-landing__title">
-            Many are called, but few are chosen.
+            Earn R20 for every item sold.
           </h1>
 
           <p className="affiliate-landing__text">
-            Apply to join the FUUVIA Affiliate Programme. Every application is
-            reviewed carefully, and only selected applicants are approved to
-            represent the brand and earn through the programme.
+            Join the FUUVIA Affiliate Programme and earn a fixed R20 commission
+            on every item purchased through your affiliate link. There is no
+            minimum payout threshold, so you can get paid from your earnings
+            without needing to hit a target first.
           </p>
+
+          <div className="affiliate-landing__highlights">
+            <div className="affiliate-landing__highlight">
+              <span className="affiliate-landing__highlight-label">Commission</span>
+              <strong>R20 per item</strong>
+            </div>
+
+            <div className="affiliate-landing__highlight">
+              <span className="affiliate-landing__highlight-label">Payout threshold</span>
+              <strong>No minimum</strong>
+            </div>
+
+            <div className="affiliate-landing__highlight">
+              <span className="affiliate-landing__highlight-label">Getting started</span>
+              <strong>Apply online</strong>
+            </div>
+          </div>
 
           <div className="affiliate-landing__actions">
             <Link to="/apply" className="affiliate-btn affiliate-btn--primary">
@@ -33,27 +51,29 @@ export default function Landing() {
       <section className="affiliate-landing__info">
         <div className="affiliate-landing__grid">
           <article className="affiliate-landing__card">
-            <h3>Selective Entry</h3>
+            <h3>Simple Earnings</h3>
             <p>
-              Not everyone who applies will be accepted. The programme is
-              intentionally selective so that FUUVIA works with the right people.
+              Every qualifying item sold through your affiliate link earns you
+              a fixed R20 commission. The more items your audience buys, the
+              more you earn.
             </p>
           </article>
 
           <article className="affiliate-landing__card">
-            <h3>Earn From Real Orders</h3>
+            <h3>No Payout Threshold</h3>
             <p>
-              Approved affiliates will be able to track orders they bring in,
-              see their earnings, and monitor payout progress from their
-              dashboard.
+              You do not need to wait until you reach a certain amount before
+              receiving your payout. Your approved earnings can be paid without
+              a minimum threshold.
             </p>
           </article>
 
           <article className="affiliate-landing__card">
-            <h3>Built For Growth</h3>
+            <h3>Track Your Performance</h3>
             <p>
-              The programme starts with manual payouts and careful review, then
-              expands as the system becomes more automated over time.
+              Approved affiliates can sign in to view their dashboard, monitor
+              orders linked to their referrals, and keep track of earnings and
+              payout progress.
             </p>
           </article>
         </div>
