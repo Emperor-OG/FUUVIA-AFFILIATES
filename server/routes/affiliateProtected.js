@@ -7,10 +7,12 @@ function requireAffiliate(req, res, next) {
   if (!req.session?.affiliate?.id) {
     return res.status(401).json({ error: "Not authenticated" });
   }
-
   next();
 }
 
+/* =========================
+   DASHBOARD
+========================= */
 router.get("/dashboard", requireAffiliate, async (req, res) => {
   try {
     const affiliateId = req.session.affiliate.id;
@@ -60,21 +62,7 @@ router.get("/dashboard", requireAffiliate, async (req, res) => {
 
     const ordersRes = await pool.query(
       `
-      SELECT
-        order_id,
-        order_reference,
-        customer_name,
-        customer_email,
-        customer_phone,
-        item_count,
-        order_total,
-        earning_amount,
-        order_status,
-        earning_status,
-        completed_at,
-        eligible_for_payout_at,
-        paid_at,
-        created_at
+      SELECT *
       FROM affiliate_earnings
       WHERE affiliate_id = $1
       ORDER BY created_at DESC
@@ -94,31 +82,15 @@ router.get("/dashboard", requireAffiliate, async (req, res) => {
   }
 });
 
+/* =========================
+   STORE SEARCH (FIXED)
+========================= */
 router.get("/stores", requireAffiliate, async (req, res) => {
   try {
-    const affiliateId = req.session.affiliate.id;
     const search = String(req.query.search || "").trim();
 
-    const affiliateRes = await pool.query(
-      `
-      SELECT id, referral_code
-      FROM affiliates
-      WHERE id = $1
-      LIMIT 1
-      `,
-      [affiliateId]
-    );
-
-    const affiliate = affiliateRes.rows[0];
-
-    if (!affiliate) {
-      return res.status(404).json({ error: "Affiliate not found" });
-    }
-
     const params = [];
-    let whereSql = `
-      WHERE COALESCE(s.is_open, true) = true
-    `;
+    let whereSql = `WHERE 1=1`; // 🔥 no more is_open filter
 
     if (search) {
       params.push(`%${search}%`);
@@ -131,7 +103,8 @@ router.get("/stores", requireAffiliate, async (req, res) => {
         s.id,
         s.store_name,
         s.city,
-        s.province
+        s.province,
+        COALESCE(s.is_open, true) AS is_open
       FROM stores s
       ${whereSql}
       ORDER BY s.store_name ASC
@@ -141,7 +114,6 @@ router.get("/stores", requireAffiliate, async (req, res) => {
     );
 
     return res.json({
-      referral_code: affiliate.referral_code || null,
       stores: storesRes.rows,
     });
   } catch (err) {
@@ -150,6 +122,9 @@ router.get("/stores", requireAffiliate, async (req, res) => {
   }
 });
 
+/* =========================
+   PROFILE UPDATE
+========================= */
 router.put("/profile", requireAffiliate, async (req, res) => {
   try {
     const affiliateId = req.session.affiliate.id;
@@ -175,20 +150,7 @@ router.put("/profile", requireAffiliate, async (req, res) => {
         branch_code = $7,
         updated_at = NOW()
       WHERE id = $1
-      RETURNING
-        id,
-        full_name,
-        email,
-        phone,
-        status,
-        referral_code,
-        bank_name,
-        account_holder,
-        account_number,
-        account_type,
-        branch_code,
-        created_at,
-        verified_at
+      RETURNING *
       `,
       [
         affiliateId,
