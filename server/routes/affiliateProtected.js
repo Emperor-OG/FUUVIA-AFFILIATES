@@ -7,12 +7,10 @@ function requireAffiliate(req, res, next) {
   if (!req.session?.affiliate?.id) {
     return res.status(401).json({ error: "Not authenticated" });
   }
+
   next();
 }
 
-/* =========================
-   DASHBOARD
-========================= */
 router.get("/dashboard", requireAffiliate, async (req, res) => {
   try {
     const affiliateId = req.session.affiliate.id;
@@ -96,15 +94,30 @@ router.get("/dashboard", requireAffiliate, async (req, res) => {
   }
 });
 
-/* =========================
-   STORES (NO FILTERING)
-========================= */
+/* ✅ FIXED ROUTE */
 router.get("/stores", requireAffiliate, async (req, res) => {
   try {
+    const affiliateId = req.session.affiliate.id;
     const search = String(req.query.search || "").trim();
 
+    const affiliateRes = await pool.query(
+      `
+      SELECT id, referral_code
+      FROM affiliates
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [affiliateId]
+    );
+
+    const affiliate = affiliateRes.rows[0];
+
+    if (!affiliate) {
+      return res.status(404).json({ error: "Affiliate not found" });
+    }
+
     const params = [];
-    let whereSql = `WHERE 1=1`; // ✅ NO FILTER
+    let whereSql = `WHERE 1=1`; // 🔥 NO FILTERING
 
     if (search) {
       params.push(`%${search}%`);
@@ -128,6 +141,7 @@ router.get("/stores", requireAffiliate, async (req, res) => {
     );
 
     return res.json({
+      referral_code: affiliate.referral_code || null,
       stores: storesRes.rows,
     });
   } catch (err) {
@@ -136,9 +150,6 @@ router.get("/stores", requireAffiliate, async (req, res) => {
   }
 });
 
-/* =========================
-   PROFILE UPDATE
-========================= */
 router.put("/profile", requireAffiliate, async (req, res) => {
   try {
     const affiliateId = req.session.affiliate.id;
