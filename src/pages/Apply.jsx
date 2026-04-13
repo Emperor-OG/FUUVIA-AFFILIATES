@@ -55,7 +55,7 @@ export default function Apply() {
       });
 
       setSuccessMessage(
-        data?.message || "Your application has been submitted successfully."
+        data?.message || "Your application has been submitted successfully. SignIn to check your status. An email will be sent to you if you have been approved."
       );
 
       setForm({
