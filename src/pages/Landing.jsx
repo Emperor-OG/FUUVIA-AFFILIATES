@@ -9,11 +9,11 @@ export default function Landing() {
           <p className="affiliate-landing__eyebrow">FUUVIA Affiliate Programme</p>
 
           <h1 className="affiliate-landing__title">
-            Earn R20 for every item sold.
+            Earn R200 for every item sold.
           </h1>
 
           <p className="affiliate-landing__text">
-            Join the FUUVIA Affiliate Programme and earn a fixed R20 commission
+            Join the FUUVIA Affiliate Programme and earn upto R200 commission
             on every item purchased through your affiliate link. Payouts are
             processed 7 days after order completion, and you can still earn if a
             customer returns within 30 days — as long as they do not click another
@@ -23,7 +23,7 @@ export default function Landing() {
           <div className="affiliate-landing__highlights">
             <div className="affiliate-landing__highlight">
               <span className="affiliate-landing__highlight-label">Commission</span>
-              <strong>R20 per item</strong>
+              <strong>Up to R200 per item</strong>
             </div>
 
             <div className="affiliate-landing__highlight">
@@ -55,7 +55,7 @@ export default function Landing() {
             <h3>Simple Earnings</h3>
             <p>
               Every qualifying item sold through your affiliate link earns you
-              a fixed R20 commission. The more items your audience buys, the
+              up to R200 commission. The more items your audience buys, the
               more you earn.
             </p>
           </article>
