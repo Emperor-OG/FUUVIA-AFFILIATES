@@ -214,7 +214,7 @@ export default function Dashboard() {
 
   const getStoreReferralLink = (storeId) => {
     if (!affiliate?.referral_code || !storeId) return "";
-    const nextPath = `/store?id=${storeId}`;
+    const nextPath = `/store/${storeId}`;
     return `${MAIN_SITE_URL}/REF/${affiliate.referral_code}?next=${encodeURIComponent(nextPath)}`;
   };
 
